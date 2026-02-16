@@ -19,25 +19,26 @@ import pandas as pd
 
 from src.config import Config
 from src.storage import DatabaseManager, StockDaily
+from data_provider.base import DataFetcherManager
 
 
 class GetLatestDataTestCase(unittest.TestCase):
     """get_latest_data 方法测试"""
-    #
-    # def setUp(self) -> None:
-    #     """为每个用例初始化独立数据库"""
-    #     self._temp_dir = tempfile.TemporaryDirectory()
-    #     self._db_path = os.path.join(self._temp_dir.name, "test_get_latest_data.db")
-    #     os.environ["DATABASE_PATH"] = self._db_path
-    #
-    #     Config._instance = None
-    #     DatabaseManager.reset_instance()
-    #     self.db = DatabaseManager.get_instance()
-    #
-    # def tearDown(self) -> None:
-    #     """清理资源"""
-    #     DatabaseManager.reset_instance()
-    #     self._temp_dir.cleanup()
+
+    def setUp(self) -> None:
+        """Initialize isolated test database for each case."""
+        self._temp_dir = tempfile.TemporaryDirectory()
+        self._db_path = os.path.join(self._temp_dir.name, "test_get_latest_data.db")
+        os.environ["DATABASE_PATH"] = self._db_path
+
+        Config._instance = None
+        DatabaseManager.reset_instance()
+        self.db = DatabaseManager.get_instance()
+
+    def tearDown(self) -> None:
+        """Cleanup database resources."""
+        DatabaseManager.reset_instance()
+        self._temp_dir.cleanup()
 
     def _insert_stock_data(self, code: str, days_ago: int, close: float) -> None:
         """插入测试用股票数据"""
@@ -99,3 +100,36 @@ class GetLatestDataTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MarketFetcherPriorityTestCase(unittest.TestCase):
+    """Verify Akshare-first policy for market-level fetch calls."""
+
+    def test_market_fetcher_prefers_akshare_first(self) -> None:
+        called = []
+
+        class _Fetcher:
+            def __init__(self, name: str):
+                self.name = name
+                self.priority = 0
+
+            def get_main_indices(self, market: str = "US"):
+                called.append(self.name)
+                return [{"code": "x"}] if self.name == "AkshareFetcher" else None
+
+            def get_market_stats(self, market: str = "US"):
+                return None
+
+            def get_sector_rankings(self, n: int = 5, market: str = "US"):
+                return None
+
+        manager = DataFetcherManager(
+            fetchers=[
+                _Fetcher("EfinanceFetcher"),
+                _Fetcher("YfinanceFetcher"),
+                _Fetcher("AkshareFetcher"),
+            ]
+        )
+        data = manager.get_main_indices(market="US")
+        self.assertTrue(data)
+        self.assertEqual(called[0], "AkshareFetcher")

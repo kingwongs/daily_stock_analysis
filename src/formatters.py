@@ -14,6 +14,24 @@ from typing import List, Callable
 import markdown2
 
 
+def format_market_scope_label(market: str) -> str:
+    """Format normalized market code for report labels."""
+    code = (market or "").strip().upper()
+    mapping = {
+        "US": "US Market",
+        "CN": "China A-Share Market",
+        "HK": "Hong Kong Market",
+    }
+    return mapping.get(code, f"{code} Market" if code else "Market")
+
+
+def normalize_market_review_text(content: str) -> str:
+    """Normalize market review text before sending notifications."""
+    if not content:
+        return ""
+    return content.strip()
+
+
 def markdown_to_html_document(markdown_text: str) -> str:
     """
     Convert Markdown to a complete HTML document (for email, md2img, etc.).

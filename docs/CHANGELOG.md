@@ -16,6 +16,14 @@
   - 支持 `STOCK_GROUP_N` + `EMAIL_GROUP_N` 配置，不同股票组报告发送到对应邮箱
   - 大盘复盘发往所有配置的邮箱
 
+### 变更
+- 📊 大盘复盘新增市场标识参数，默认市场改为 `US`
+- 🔌 市场级数据源策略默认优先 Akshare，失败后按现有回退链路继续
+- 🧰 新增 Tavily 调用控制开关：`TAVILY_ENABLED` 和 `TESTING_DISABLE_TAVILY`
+
+### 测试
+- ✅ 新增/更新测试覆盖：默认市场解析、Akshare-first 策略、Tavily 开关与测试禁用路径
+
 ## [3.0.5] - 2026-02-08
 
 ### 修复

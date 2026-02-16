@@ -1,0 +1,5 @@
+prefix_rule(pattern=["git", "fetch", "--all", "--prune"], decision="allow")
+prefix_rule(pattern=[".specify/scripts/bash/create-new-feature.sh"], decision="allow")
+prefix_rule(pattern=[".venv/bin/python", "-m", "pip", "install"], decision="allow")
+prefix_rule(pattern=["git", "branch", "-D", "001-english-us-yfinance"], decision="allow")
+prefix_rule(pattern=["git", "add", "-A"], decision="allow")

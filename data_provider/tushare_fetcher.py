@@ -612,10 +612,12 @@ class TushareFetcher(BaseFetcher):
             logger.warning(f"Tushare (旧版) 获取实时行情失败 {stock_code}: {e}")
             return None
 
-    def get_main_indices(self) -> Optional[List[dict]]:
+    def get_main_indices(self, market: str = "US") -> Optional[List[dict]]:
         """
         获取主要指数实时行情 (Tushare Pro)
         """
+        if (market or "US").upper() != "CN":
+            return None
         if self._api is None:
             return None
 
@@ -681,10 +683,12 @@ class TushareFetcher(BaseFetcher):
 
         return None
 
-    def get_market_stats(self) -> Optional[dict]:
+    def get_market_stats(self, market: str = "US") -> Optional[dict]:
         """
         获取市场涨跌统计 (Tushare Pro)
         """
+        if (market or "US").upper() != "CN":
+            return None
         if self._api is None:
             return None
 
@@ -752,10 +756,12 @@ class TushareFetcher(BaseFetcher):
 
         return None
 
-    def get_sector_rankings(self, n: int = 5) -> Optional[Tuple[list, list]]:
+    def get_sector_rankings(self, n: int = 5, market: str = "US") -> Optional[Tuple[list, list]]:
         """
         获取板块涨跌榜 (Tushare Pro)
         """
+        if (market or "US").upper() != "CN":
+            return None
         # Tushare 获取板块数据较复杂，暂时返回 None，让 AkShare 处理
         return None
 

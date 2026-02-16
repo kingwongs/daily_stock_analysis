@@ -18,6 +18,21 @@ from dotenv import load_dotenv, dotenv_values
 from dataclasses import dataclass, field
 
 
+def normalize_market_code(value: Optional[str], default: str = "US") -> str:
+    """Normalize market code to one of US/CN/HK."""
+    market = (value or default).strip().upper()
+    aliases = {
+        "US": "US",
+        "USA": "US",
+        "CN": "CN",
+        "CHINA": "CN",
+        "A": "CN",
+        "HK": "HK",
+        "HKG": "HK",
+    }
+    return aliases.get(market, default)
+
+
 def setup_env(override: bool = False):
     """
     Initialize environment variables from .env file.
@@ -77,6 +92,7 @@ class Config:
     openai_temperature: float = 0.7  # OpenAI 温度参数（0.0-2.0，默认0.7）
     
     # === 搜索引擎配置（支持多 Key 负载均衡）===
+    tavily_enabled: bool = True
     bocha_api_keys: List[str] = field(default_factory=list)  # Bocha API Keys
     tavily_api_keys: List[str] = field(default_factory=list)  # Tavily API Keys
     brave_api_keys: List[str] = field(default_factory=list)  # Brave Search API Keys
@@ -174,6 +190,8 @@ class Config:
     schedule_enabled: bool = False            # 是否启用定时任务
     schedule_time: str = "18:00"              # 每日推送时间（HH:MM 格式）
     market_review_enabled: bool = True        # 是否启用大盘复盘
+    market_review_default_market: str = "US"  # 默认复盘市场（US/CN/HK）
+    testing_disable_tavily: bool = True       # 测试环境默认禁用 Tavily
 
     # === 实时行情增强数据配置 ===
     # 实时行情开关（关闭后使用历史收盘价进行分析）
@@ -326,18 +344,22 @@ class Config:
         if not stock_list:
             stock_list = ['600519', '000001', '300750']
         
+        def parse_api_keys(raw: str) -> List[str]:
+            return [k.strip() for k in raw.split(',') if k.strip()]
+
         # 解析搜索引擎 API Keys（支持多个 key，逗号分隔）
         bocha_keys_str = os.getenv('BOCHA_API_KEYS', '')
-        bocha_api_keys = [k.strip() for k in bocha_keys_str.split(',') if k.strip()]
+        bocha_api_keys = parse_api_keys(bocha_keys_str)
         
+        tavily_enabled = os.getenv('TAVILY_ENABLED', 'true').lower() == 'true'
         tavily_keys_str = os.getenv('TAVILY_API_KEYS', '')
-        tavily_api_keys = [k.strip() for k in tavily_keys_str.split(',') if k.strip()]
+        tavily_api_keys = parse_api_keys(tavily_keys_str) if tavily_enabled else []
         
         serpapi_keys_str = os.getenv('SERPAPI_API_KEYS', '')
-        serpapi_keys = [k.strip() for k in serpapi_keys_str.split(',') if k.strip()]
+        serpapi_keys = parse_api_keys(serpapi_keys_str)
 
         brave_keys_str = os.getenv('BRAVE_API_KEYS', '')
-        brave_api_keys = [k.strip() for k in brave_keys_str.split(',') if k.strip()]
+        brave_api_keys = parse_api_keys(brave_keys_str)
 
         # 企微消息类型与最大字节数逻辑
         wechat_msg_type = os.getenv('WECHAT_MSG_TYPE', 'markdown')
@@ -366,6 +388,7 @@ class Config:
             openai_base_url=os.getenv('OPENAI_BASE_URL'),
             openai_model=os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
             openai_temperature=float(os.getenv('OPENAI_TEMPERATURE', '0.7')),
+            tavily_enabled=tavily_enabled,
             bocha_api_keys=bocha_api_keys,
             tavily_api_keys=tavily_api_keys,
             brave_api_keys=brave_api_keys,
@@ -419,6 +442,11 @@ class Config:
             schedule_enabled=os.getenv('SCHEDULE_ENABLED', 'false').lower() == 'true',
             schedule_time=os.getenv('SCHEDULE_TIME', '18:00'),
             market_review_enabled=os.getenv('MARKET_REVIEW_ENABLED', 'true').lower() == 'true',
+            market_review_default_market=normalize_market_code(
+                os.getenv('MARKET_REVIEW_DEFAULT_MARKET', 'US'),
+                default='US',
+            ),
+            testing_disable_tavily=os.getenv('TESTING_DISABLE_TAVILY', 'true').lower() == 'true',
             webui_enabled=os.getenv('WEBUI_ENABLED', 'false').lower() == 'true',
             webui_host=os.getenv('WEBUI_HOST', '127.0.0.1'),
             webui_port=int(os.getenv('WEBUI_PORT', '8000')),

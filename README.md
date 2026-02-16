@@ -120,6 +120,11 @@
 | `BRAVE_API_KEYS` | [Brave Search](https://brave.com/search/api/) API（隐私优先，美股优化，多个key用逗号分隔） | 可选 |
 | `TUSHARE_TOKEN` | [Tushare Pro](https://tushare.pro/weborder/#/login?reg=834638 ) Token | 可选 |
 | `WECHAT_MSG_TYPE` | 企微消息类型，默认 markdown，支持配置 text 类型，发送纯 markdown 文本 | 可选 |
+| `TAVILY_ENABLED` | Tavily 搜索总开关，`false` 时运行期不会调用 Tavily | 可选 |
+| `MARKET_REVIEW_DEFAULT_MARKET` | 大盘复盘默认市场，支持 `US` / `CN` / `HK`，默认 `US` | 可选 |
+| `TESTING_DISABLE_TAVILY` | 测试场景禁用 Tavily，建议保持 `true` 以节省 token | 可选 |
+
+> 测试推荐配置：`TAVILY_ENABLED=false` 且 `TESTING_DISABLE_TAVILY=true`，避免本地/CI 消耗 Tavily 配额。
 
 #### 3. 启用 Actions
 

@@ -17,7 +17,7 @@ YfinanceFetcher - 兜底数据源 (Priority 4)
 import logging
 import re
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 
 import pandas as pd
 from tenacity import (
@@ -226,21 +226,30 @@ class YfinanceFetcher(BaseFetcher):
         
         return df
 
-    def get_main_indices(self) -> Optional[List[Dict[str, Any]]]:
+    def get_main_indices(self, market: str = "US") -> Optional[List[Dict[str, Any]]]:
         """
         获取主要指数行情 (Yahoo Finance)
         """
         import yfinance as yf
 
-        # 映射关系：akshare代码 -> (yfinance代码, 名称)
-        yf_mapping = {
-            'sh000001': ('000001.SS', '上证指数'),
-            'sz399001': ('399001.SZ', '深证成指'),
-            'sz399006': ('399006.SZ', '创业板指'),
-            'sh000688': ('000688.SS', '科创50'),
-            'sh000016': ('000016.SS', '上证50'),
-            'sh000300': ('000300.SS', '沪深300'),
-        }
+        market = (market or "US").upper()
+        if market == "US":
+            yf_mapping = {
+                '^GSPC': ('^GSPC', 'S&P 500'),
+                '^IXIC': ('^IXIC', 'NASDAQ Composite'),
+                '^DJI': ('^DJI', 'Dow Jones'),
+                '^RUT': ('^RUT', 'Russell 2000'),
+            }
+        else:
+            # 映射关系：akshare代码 -> (yfinance代码, 名称)
+            yf_mapping = {
+                'sh000001': ('000001.SS', '上证指数'),
+                'sz399001': ('399001.SZ', '深证成指'),
+                'sz399006': ('399006.SZ', '创业板指'),
+                'sh000688': ('000688.SS', '科创50'),
+                'sh000016': ('000016.SS', '上证50'),
+                'sh000300': ('000300.SS', '沪深300'),
+            }
 
         results = []
         try:
@@ -293,6 +302,58 @@ class YfinanceFetcher(BaseFetcher):
             logger.error(f"[Yfinance] 获取指数行情失败: {e}")
 
         return None
+
+    def get_market_stats(self, market: str = "US") -> Optional[Dict[str, Any]]:
+        """Build lightweight market breadth stats from index moves."""
+        indices = self.get_main_indices(market=market) or []
+        if not indices:
+            return None
+        up = sum(1 for i in indices if i.get("change_pct", 0) > 0)
+        down = sum(1 for i in indices if i.get("change_pct", 0) < 0)
+        flat = len(indices) - up - down
+        return {
+            "up_count": up,
+            "down_count": down,
+            "flat_count": flat,
+            "limit_up_count": 0,
+            "limit_down_count": 0,
+            "total_amount": 0.0,
+        }
+
+    def get_sector_rankings(self, n: int = 5, market: str = "US") -> Optional[Tuple[List[Dict], List[Dict]]]:
+        """Get simple sector rankings using US sector ETFs when market=US."""
+        if (market or "US").upper() != "US":
+            return None
+        import yfinance as yf
+
+        etfs = {
+            "Technology": "XLK",
+            "Financials": "XLF",
+            "Health Care": "XLV",
+            "Energy": "XLE",
+            "Industrials": "XLI",
+            "Consumer Discretionary": "XLY",
+            "Consumer Staples": "XLP",
+            "Utilities": "XLU",
+            "Materials": "XLB",
+            "Real Estate": "XLRE",
+        }
+        perf = []
+        for name, symbol in etfs.items():
+            try:
+                hist = yf.Ticker(symbol).history(period="5d")
+                if hist.empty:
+                    continue
+                latest = float(hist.iloc[-1]["Close"])
+                prev = float(hist.iloc[-2]["Close"]) if len(hist) > 1 else latest
+                change_pct = ((latest - prev) / prev * 100) if prev else 0.0
+                perf.append({"name": name, "change_pct": change_pct})
+            except Exception:
+                continue
+        if not perf:
+            return None
+        perf.sort(key=lambda x: x["change_pct"], reverse=True)
+        return perf[:n], sorted(perf, key=lambda x: x["change_pct"])[:n]
 
     def _is_us_stock(self, stock_code: str) -> bool:
         """

@@ -12,6 +12,7 @@ A股自选股智能分析系统 - 搜索服务模块
 """
 
 import logging
+import os
 import random
 import time
 from abc import ABC, abstractmethod
@@ -907,6 +908,8 @@ class SearchService:
         tavily_keys: Optional[List[str]] = None,
         brave_keys: Optional[List[str]] = None,
         serpapi_keys: Optional[List[str]] = None,
+        tavily_enabled: bool = True,
+        testing_disable_tavily: bool = True,
     ):
         """
         初始化搜索服务
@@ -918,6 +921,10 @@ class SearchService:
             serpapi_keys: SerpAPI Key 列表
         """
         self._providers: List[BaseSearchProvider] = []
+        self._testing_mode = bool(os.getenv("PYTEST_CURRENT_TEST"))
+        self._tavily_enabled = tavily_enabled
+        self._testing_disable_tavily = testing_disable_tavily
+        self._effective_tavily_enabled = self._is_tavily_effectively_enabled()
 
         # 初始化搜索引擎（按优先级排序）
         # 1. Bocha 优先（中文搜索优化，AI摘要）
@@ -926,9 +933,11 @@ class SearchService:
             logger.info(f"已配置 Bocha 搜索，共 {len(bocha_keys)} 个 API Key")
 
         # 2. Tavily（免费额度更多，每月 1000 次）
-        if tavily_keys:
+        if tavily_keys and self._effective_tavily_enabled:
             self._providers.append(TavilySearchProvider(tavily_keys))
             logger.info(f"已配置 Tavily 搜索，共 {len(tavily_keys)} 个 API Key")
+        elif tavily_keys and not self._effective_tavily_enabled:
+            logger.info("Tavily 已配置但当前生效策略为禁用")
 
         # 3. Brave Search（隐私优先，全球覆盖）
         if brave_keys:
@@ -947,6 +956,14 @@ class SearchService:
         self._cache: Dict[str, Tuple[float, 'SearchResponse']] = {}
         # Default cache TTL in seconds (10 minutes)
         self._cache_ttl: int = 600
+
+    def _is_tavily_effectively_enabled(self) -> bool:
+        """Evaluate if Tavily calls are allowed under runtime/test policy."""
+        if not self._tavily_enabled:
+            return False
+        if self._testing_mode and self._testing_disable_tavily:
+            return False
+        return True
     
     @staticmethod
     def _is_foreign_stock(stock_code: str) -> bool:
@@ -968,6 +985,11 @@ class SearchService:
     def is_available(self) -> bool:
         """检查是否有可用的搜索引擎"""
         return any(p.is_available for p in self._providers)
+
+    @property
+    def provider_names(self) -> List[str]:
+        """Return configured and available provider names for diagnostics."""
+        return [p.name for p in self._providers if p.is_available]
 
     def _cache_key(self, query: str, max_results: int, days: int) -> str:
         """Build a cache key from query parameters."""
@@ -1516,6 +1538,8 @@ def get_search_service() -> SearchService:
             tavily_keys=config.tavily_api_keys,
             brave_keys=config.brave_api_keys,
             serpapi_keys=config.serpapi_keys,
+            tavily_enabled=config.tavily_enabled,
+            testing_disable_tavily=config.testing_disable_tavily,
         )
     
     return _search_service

@@ -1,0 +1,10 @@
+{
+  "signed_payload": {
+    "cached_at": "2026-02-15T03:29:16.278132Z",
+    "expires_at": "2026-02-15T04:29:16.278132Z",
+    "chatgpt_user_id": "user-ItdpM78j02MqzoDiFn4qb2qE",
+    "account_id": "66ab079e-47a6-400a-a5cd-1b55cd150682",
+    "contents": null
+  },
+  "signature": "fmjtj9Vu+zE8dTvh7Unb7AMiD0M8U2st7nUqx56mP+w="
+}

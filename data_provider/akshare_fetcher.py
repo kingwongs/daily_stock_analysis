@@ -1302,11 +1302,14 @@ class AkshareFetcher(BaseFetcher):
         
         return result
 
-    def get_main_indices(self) -> Optional[List[Dict[str, Any]]]:
+    def get_main_indices(self, market: str = "US") -> Optional[List[Dict[str, Any]]]:
         """
         获取主要指数实时行情 (新浪接口)
         """
         import akshare as ak
+        if (market or "US").upper() != "CN":
+            logger.info(f"[Akshare] 市场 {market} 暂不支持指数接口，跳过到下一数据源")
+            return None
 
         # 主要指数代码映射
         indices_map = {
@@ -1366,7 +1369,7 @@ class AkshareFetcher(BaseFetcher):
             logger.error(f"[Akshare] 获取指数行情失败: {e}")
             return None
 
-    def get_market_stats(self) -> Optional[Dict[str, Any]]:
+    def get_market_stats(self, market: str = "US") -> Optional[Dict[str, Any]]:
         """
         获取市场涨跌统计
 
@@ -1375,6 +1378,9 @@ class AkshareFetcher(BaseFetcher):
         2. 新浪接口 (ak.stock_zh_a_spot)
         """
         import akshare as ak
+        if (market or "US").upper() != "CN":
+            logger.info(f"[Akshare] 市场 {market} 暂不支持涨跌统计接口，跳过到下一数据源")
+            return None
 
         # 优先东财接口
         try:
@@ -1439,7 +1445,7 @@ class AkshareFetcher(BaseFetcher):
             stats['total_amount'] = df[amount_col].sum() / 1e8
         return stats
 
-    def get_sector_rankings(self, n: int = 5) -> Optional[Tuple[List[Dict], List[Dict]]]:
+    def get_sector_rankings(self, n: int = 5, market: str = "US") -> Optional[Tuple[List[Dict], List[Dict]]]:
         """
         获取板块涨跌榜
 
@@ -1448,6 +1454,9 @@ class AkshareFetcher(BaseFetcher):
         2. 新浪接口 (ak.stock_sector_spot)
         """
         import akshare as ak
+        if (market or "US").upper() != "CN":
+            logger.info(f"[Akshare] 市场 {market} 暂不支持行业板块接口，跳过到下一数据源")
+            return None
 
         # 优先东财接口
         try:

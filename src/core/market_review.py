@@ -14,10 +14,12 @@ import logging
 from datetime import datetime
 from typing import Optional
 
+from src.config import get_config, normalize_market_code
 from src.notification import NotificationService
 from src.market_analyzer import MarketAnalyzer
 from src.search_service import SearchService
 from src.analyzer import GeminiAnalyzer
+from src.formatters import format_market_scope_label
 
 
 logger = logging.getLogger(__name__)
@@ -27,6 +29,7 @@ def run_market_review(
     notifier: NotificationService, 
     analyzer: Optional[GeminiAnalyzer] = None, 
     search_service: Optional[SearchService] = None,
+    market: Optional[str] = None,
     send_notification: bool = True
 ) -> Optional[str]:
     """
@@ -36,17 +39,24 @@ def run_market_review(
         notifier: 通知服务
         analyzer: AI分析器（可选）
         search_service: 搜索服务（可选）
+        market: 市场范围（US/CN/HK），为空时使用配置默认值
         send_notification: 是否发送通知
     
     Returns:
         复盘报告文本
     """
-    logger.info("开始执行大盘复盘分析...")
+    config = get_config()
+    default_market = config.market_review_default_market
+    resolved_market = normalize_market_code(market, default=default_market)
+    if market and normalize_market_code(market, default=default_market) != str(market).strip().upper():
+        logger.warning(f"无效市场参数 '{market}'，已回退默认市场: {default_market}")
+    logger.info(f"开始执行大盘复盘分析... market={resolved_market}")
     
     try:
         market_analyzer = MarketAnalyzer(
             search_service=search_service,
-            analyzer=analyzer
+            analyzer=analyzer,
+            market=resolved_market,
         )
         
         # 执行复盘
@@ -57,7 +67,7 @@ def run_market_review(
             date_str = datetime.now().strftime('%Y%m%d')
             report_filename = f"market_review_{date_str}.md"
             filepath = notifier.save_report_to_file(
-                f"# 🎯 大盘复盘\n\n{review_report}", 
+                f"# 🎯 大盘复盘 ({format_market_scope_label(resolved_market)})\n\n{review_report}",
                 report_filename
             )
             logger.info(f"大盘复盘报告已保存: {filepath}")
@@ -65,7 +75,7 @@ def run_market_review(
             # 推送通知
             if send_notification and notifier.is_available():
                 # 添加标题
-                report_content = f"🎯 大盘复盘\n\n{review_report}"
+                report_content = f"🎯 大盘复盘 ({format_market_scope_label(resolved_market)})\n\n{review_report}"
                 
                 success = notifier.send(report_content, email_send_to_all=True)
                 if success:

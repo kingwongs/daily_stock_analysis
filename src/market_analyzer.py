@@ -18,7 +18,7 @@ from typing import Optional, Dict, Any, List
 
 import pandas as pd
 
-from src.config import get_config
+from src.config import get_config, normalize_market_code
 from src.search_service import SearchService
 from data_provider.base import DataFetcherManager
 
@@ -87,18 +87,28 @@ class MarketAnalyzer:
     5. 生成大盘复盘报告
     """
     
-    def __init__(self, search_service: Optional[SearchService] = None, analyzer=None):
+    def __init__(
+        self,
+        search_service: Optional[SearchService] = None,
+        analyzer=None,
+        market: Optional[str] = None
+    ):
         """
         初始化大盘分析器
 
         Args:
             search_service: 搜索服务实例
             analyzer: AI分析器实例（用于调用LLM）
+            market: 市场范围（US/CN/HK），为空时使用配置默认值
         """
         self.config = get_config()
         self.search_service = search_service
         self.analyzer = analyzer
         self.data_manager = DataFetcherManager()
+        self.market = normalize_market_code(
+            market or self.config.market_review_default_market,
+            default="US"
+        )
 
     def get_market_overview(self) -> MarketOverview:
         """
@@ -109,6 +119,7 @@ class MarketAnalyzer:
         """
         today = datetime.now().strftime('%Y-%m-%d')
         overview = MarketOverview(date=today)
+        logger.info(f"[大盘] 复盘市场: {self.market}")
         
         # 1. 获取主要指数行情
         overview.indices = self._get_main_indices()
@@ -134,7 +145,7 @@ class MarketAnalyzer:
 
             # 使用 DataFetcherManager 获取指数行情
             # Manager 会自动尝试：Akshare -> Tushare -> Yfinance
-            data_list = self.data_manager.get_main_indices()
+            data_list = self.data_manager.get_main_indices(market=self.market)
 
             if data_list:
                 for item in data_list:
@@ -169,7 +180,7 @@ class MarketAnalyzer:
         try:
             logger.info("[大盘] 获取市场涨跌统计...")
 
-            stats = self.data_manager.get_market_stats()
+            stats = self.data_manager.get_market_stats(market=self.market)
 
             if stats:
                 overview.up_count = stats.get('up_count', 0)
@@ -191,7 +202,7 @@ class MarketAnalyzer:
         try:
             logger.info("[大盘] 获取板块涨跌榜...")
 
-            top_sectors, bottom_sectors = self.data_manager.get_sector_rankings(5)
+            top_sectors, bottom_sectors = self.data_manager.get_sector_rankings(5, market=self.market)
 
             if top_sectors or bottom_sectors:
                 overview.top_sectors = top_sectors

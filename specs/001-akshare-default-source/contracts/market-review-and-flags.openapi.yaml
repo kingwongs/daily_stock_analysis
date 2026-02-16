@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Market Review and Runtime Flag Contract
+  version: 1.0.0
+  description: |
+    Contract for controlling market review scope and Tavily invocation behavior.
+servers:
+  - url: http://localhost:8000
+paths:
+  /api/v1/market-review/run:
+    post:
+      summary: Run market review with optional market flag
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                market:
+                  type: string
+                  description: Requested market code
+                  enum: [US, CN, HK]
+      responses:
+        '200':
+          description: Market review accepted with resolved market scope
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resolved_market, report_generated]
+                properties:
+                  resolved_market:
+                    type: string
+                    enum: [US, CN, HK]
+                  report_generated:
+                    type: boolean
+                  source_policy:
+                    type: string
+                    description: Effective default source policy
+        '400':
+          description: Invalid request payload
+  /api/v1/runtime-flags/search:
+    patch:
+      summary: Update runtime search invocation flags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tavily_enabled:
+                  type: boolean
+      responses:
+        '200':
+          description: Runtime flags updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tavily_enabled, effective_tavily_allowed]
+                properties:
+                  tavily_enabled:
+                    type: boolean
+                  effective_tavily_allowed:
+                    type: boolean
+                  reason:
+                    type: string
+                    nullable: true
+components:
+  schemas:
+    MarketSourcePolicy:
+      type: object
+      required: [default_provider, fallback_providers, applies_to, is_active]
+      properties:
+        default_provider:
+          type: string
+          example: akshare
+        fallback_providers:
+          type: array
+          items:
+            type: string
+        applies_to:
+          type: array
+          items:
+            type: string
+        is_active:
+          type: boolean
+    TavilyInvocationPolicy:
+      type: object
+      required: [tavily_enabled, testing_mode, effective_tavily_allowed]
+      properties:
+        tavily_enabled:
+          type: boolean
+        testing_mode:
+          type: boolean
+        effective_tavily_allowed:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
