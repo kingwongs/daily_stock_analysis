@@ -131,7 +131,7 @@ class BaseFetcher(ABC):
         """
         pass
 
-    def get_main_indices(self) -> Optional[List[Dict[str, Any]]]:
+    def get_main_indices(self, market: str = "US") -> Optional[List[Dict[str, Any]]]:
         """
         获取主要指数实时行情
 
@@ -147,7 +147,7 @@ class BaseFetcher(ABC):
         """
         return None
 
-    def get_market_stats(self) -> Optional[Dict[str, Any]]:
+    def get_market_stats(self, market: str = "US") -> Optional[Dict[str, Any]]:
         """
         获取市场涨跌统计
 
@@ -162,7 +162,7 @@ class BaseFetcher(ABC):
         """
         return None
 
-    def get_sector_rankings(self, n: int = 5) -> Optional[Tuple[List[Dict], List[Dict]]]:
+    def get_sector_rankings(self, n: int = 5, market: str = "US") -> Optional[Tuple[List[Dict], List[Dict]]]:
         """
         获取板块涨跌榜
 
@@ -878,11 +878,25 @@ class DataFetcherManager:
         logger.info(f"[股票名称] 批量获取完成，成功 {len(result)}/{len(stock_codes)}")
         return result
 
-    def get_main_indices(self) -> List[Dict[str, Any]]:
+    def _get_market_fetchers(self) -> List[BaseFetcher]:
+        """Get fetchers ordered for market-level requests (Akshare first)."""
+        fetchers = list(self._fetchers)
+        fetchers.sort(
+            key=lambda f: (
+                0 if f.name == "AkshareFetcher" else 1,
+                f.priority,
+            )
+        )
+        return fetchers
+
+    def get_main_indices(self, market: str = "US") -> List[Dict[str, Any]]:
         """获取主要指数实时行情（自动切换数据源）"""
-        for fetcher in self._fetchers:
+        for fetcher in self._get_market_fetchers():
             try:
-                data = fetcher.get_main_indices()
+                try:
+                    data = fetcher.get_main_indices(market=market)
+                except TypeError:
+                    data = fetcher.get_main_indices()
                 if data:
                     logger.info(f"[{fetcher.name}] 获取指数行情成功")
                     return data
@@ -891,11 +905,14 @@ class DataFetcherManager:
                 continue
         return []
 
-    def get_market_stats(self) -> Dict[str, Any]:
+    def get_market_stats(self, market: str = "US") -> Dict[str, Any]:
         """获取市场涨跌统计（自动切换数据源）"""
-        for fetcher in self._fetchers:
+        for fetcher in self._get_market_fetchers():
             try:
-                data = fetcher.get_market_stats()
+                try:
+                    data = fetcher.get_market_stats(market=market)
+                except TypeError:
+                    data = fetcher.get_market_stats()
                 if data:
                     logger.info(f"[{fetcher.name}] 获取市场统计成功")
                     return data
@@ -904,11 +921,14 @@ class DataFetcherManager:
                 continue
         return {}
 
-    def get_sector_rankings(self, n: int = 5) -> Tuple[List[Dict], List[Dict]]:
+    def get_sector_rankings(self, n: int = 5, market: str = "US") -> Tuple[List[Dict], List[Dict]]:
         """获取板块涨跌榜（自动切换数据源）"""
-        for fetcher in self._fetchers:
+        for fetcher in self._get_market_fetchers():
             try:
-                data = fetcher.get_sector_rankings(n)
+                try:
+                    data = fetcher.get_sector_rankings(n, market=market)
+                except TypeError:
+                    data = fetcher.get_sector_rankings(n)
                 if data:
                     logger.info(f"[{fetcher.name}] 获取板块排行成功")
                     return data

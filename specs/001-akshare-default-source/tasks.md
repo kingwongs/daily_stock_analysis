@@ -11,9 +11,9 @@
 
 **Purpose**: Align configuration surfaces and test harness for this feature.
 
-- [ ] T001 Add/normalize feature flags in `/Users/jing/Documents/Projects/daily_stock_analysis/.env.example`
-- [ ] T002 Add default market and Tavily test toggles in `/Users/jing/Documents/Projects/daily_stock_analysis/src/config.py`
-- [ ] T003 [P] Add/confirm test environment defaults for Tavily suppression in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/conftest.py`
+- [X] T001 Add/normalize feature flags in `/Users/jing/Documents/Projects/daily_stock_analysis/.env.example`
+- [X] T002 Add default market and Tavily test toggles in `/Users/jing/Documents/Projects/daily_stock_analysis/src/config.py`
+- [X] T003 [P] Add/confirm test environment defaults for Tavily suppression in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/conftest.py`
 
 ---
 
@@ -23,11 +23,11 @@
 
 **⚠️ CRITICAL**: User story work starts after this phase.
 
-- [ ] T004 Implement market code normalization utility updates in `/Users/jing/Documents/Projects/daily_stock_analysis/src/config.py`
-- [ ] T005 Implement Akshare-first default source selection policy in `/Users/jing/Documents/Projects/daily_stock_analysis/data_provider/base.py`
-- [ ] T006 Implement Tavily effective-enable gating helper in `/Users/jing/Documents/Projects/daily_stock_analysis/src/search_service.py`
-- [ ] T007 [P] Add runtime log for effective Tavily status in `/Users/jing/Documents/Projects/daily_stock_analysis/src/core/pipeline.py`
-- [ ] T008 [P] Add runtime log for resolved market scope in `/Users/jing/Documents/Projects/daily_stock_analysis/src/core/market_review.py`
+- [X] T004 Implement market code normalization utility updates in `/Users/jing/Documents/Projects/daily_stock_analysis/src/config.py`
+- [X] T005 Implement Akshare-first default source selection policy in `/Users/jing/Documents/Projects/daily_stock_analysis/data_provider/base.py`
+- [X] T006 Implement Tavily effective-enable gating helper in `/Users/jing/Documents/Projects/daily_stock_analysis/src/search_service.py`
+- [X] T007 [P] Add runtime log for effective Tavily status in `/Users/jing/Documents/Projects/daily_stock_analysis/src/core/pipeline.py`
+- [X] T008 [P] Add runtime log for resolved market scope in `/Users/jing/Documents/Projects/daily_stock_analysis/src/core/market_review.py`
 
 **Checkpoint**: Foundation complete; user stories can proceed.
 
@@ -41,15 +41,15 @@
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Add test for default market resolution to US in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_market_review_us_default.py`
-- [ ] T010 [P] [US1] Add test for Akshare-first source policy in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_get_latest_data.py`
+- [X] T009 [P] [US1] Add test for default market resolution to US in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_market_review_us_default.py`
+- [X] T010 [P] [US1] Add test for Akshare-first source policy in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_get_latest_data.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Add explicit market flag parameter and US default handling in `/Users/jing/Documents/Projects/daily_stock_analysis/src/core/market_review.py`
-- [ ] T012 [US1] Propagate market flag from CLI entrypoints in `/Users/jing/Documents/Projects/daily_stock_analysis/main.py`
-- [ ] T013 [US1] Ensure market analyzer consumes resolved market flag in `/Users/jing/Documents/Projects/daily_stock_analysis/src/market_analyzer.py`
-- [ ] T014 [US1] Align market review formatting for resolved market metadata in `/Users/jing/Documents/Projects/daily_stock_analysis/src/formatters.py`
+- [X] T011 [US1] Add explicit market flag parameter and US default handling in `/Users/jing/Documents/Projects/daily_stock_analysis/src/core/market_review.py`
+- [X] T012 [US1] Propagate market flag from CLI entrypoints in `/Users/jing/Documents/Projects/daily_stock_analysis/main.py`
+- [X] T013 [US1] Ensure market analyzer consumes resolved market flag in `/Users/jing/Documents/Projects/daily_stock_analysis/src/market_analyzer.py`
+- [X] T014 [US1] Align market review formatting for resolved market metadata in `/Users/jing/Documents/Projects/daily_stock_analysis/src/formatters.py`
 
 **Checkpoint**: US1 is independently functional and testable.
 
@@ -63,14 +63,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T015 [P] [US2] Add test for Tavily-disabled runtime path in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_report_language_english.py`
-- [ ] T016 [P] [US2] Add test for Tavily-enabled runtime path with mock provider in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_report_language_english.py`
+- [X] T015 [P] [US2] Add test for Tavily-disabled runtime path in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_report_language_english.py`
+- [X] T016 [P] [US2] Add test for Tavily-enabled runtime path with mock provider in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_report_language_english.py`
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Enforce Tavily flag in provider initialization logic in `/Users/jing/Documents/Projects/daily_stock_analysis/src/search_service.py`
-- [ ] T018 [US2] Ensure Tavily flag is loaded and exposed consistently in `/Users/jing/Documents/Projects/daily_stock_analysis/src/config.py`
-- [ ] T019 [US2] Update pipeline startup diagnostics for Tavily effective state in `/Users/jing/Documents/Projects/daily_stock_analysis/src/core/pipeline.py`
+- [X] T017 [US2] Enforce Tavily flag in provider initialization logic in `/Users/jing/Documents/Projects/daily_stock_analysis/src/search_service.py`
+- [X] T018 [US2] Ensure Tavily flag is loaded and exposed consistently in `/Users/jing/Documents/Projects/daily_stock_analysis/src/config.py`
+- [X] T019 [US2] Update pipeline startup diagnostics for Tavily effective state in `/Users/jing/Documents/Projects/daily_stock_analysis/src/core/pipeline.py`
 
 **Checkpoint**: US2 is independently functional and testable.
 
@@ -84,13 +84,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T020 [P] [US3] Add assertion guard against live Tavily calls in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/conftest.py`
-- [ ] T021 [P] [US3] Add integration-style test for Tavily mock fallback behavior in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_report_language_english.py`
+- [X] T020 [P] [US3] Add assertion guard against live Tavily calls in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/conftest.py`
+- [X] T021 [P] [US3] Add integration-style test for Tavily mock fallback behavior in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_report_language_english.py`
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Add explicit testing-mode Tavily override behavior in `/Users/jing/Documents/Projects/daily_stock_analysis/src/search_service.py`
-- [ ] T023 [US3] Ensure test-mode configuration does not affect production defaults in `/Users/jing/Documents/Projects/daily_stock_analysis/src/config.py`
+- [X] T022 [US3] Add explicit testing-mode Tavily override behavior in `/Users/jing/Documents/Projects/daily_stock_analysis/src/search_service.py`
+- [X] T023 [US3] Ensure test-mode configuration does not affect production defaults in `/Users/jing/Documents/Projects/daily_stock_analysis/src/config.py`
 
 **Checkpoint**: US3 is independently functional and testable.
 
@@ -100,12 +100,12 @@
 
 **Purpose**: Validation, docs, and delivery metadata.
 
-- [ ] T024 [P] Update feature behavior documentation in `/Users/jing/Documents/Projects/daily_stock_analysis/README.md`
-- [ ] T025 [P] Record release notes for this feature in `/Users/jing/Documents/Projects/daily_stock_analysis/docs/CHANGELOG.md`
-- [ ] T026 [P] Verify all new/changed runtime keys in `/Users/jing/Documents/Projects/daily_stock_analysis/.env.example`
-- [ ] T027 Run required syntax validation command in `/Users/jing/Documents/Projects/daily_stock_analysis/test.sh`
-- [ ] T028 Run targeted pytest validation for impacted stories in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_market_review_us_default.py`
-- [ ] T029 Add PR metadata notes (issue link, type, release tag, rollback) in `/Users/jing/Documents/Projects/daily_stock_analysis/specs/001-akshare-default-source/plan.md`
+- [X] T024 [P] Update feature behavior documentation in `/Users/jing/Documents/Projects/daily_stock_analysis/README.md`
+- [X] T025 [P] Record release notes for this feature in `/Users/jing/Documents/Projects/daily_stock_analysis/docs/CHANGELOG.md`
+- [X] T026 [P] Verify all new/changed runtime keys in `/Users/jing/Documents/Projects/daily_stock_analysis/.env.example`
+- [X] T027 Run required syntax validation command in `/Users/jing/Documents/Projects/daily_stock_analysis/test.sh`
+- [X] T028 Run targeted pytest validation for impacted stories in `/Users/jing/Documents/Projects/daily_stock_analysis/tests/test_market_review_us_default.py`
+- [X] T029 Add PR metadata notes (issue link, type, release tag, rollback) in `/Users/jing/Documents/Projects/daily_stock_analysis/specs/001-akshare-default-source/plan.md`
 
 ---
 

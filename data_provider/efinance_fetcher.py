@@ -657,10 +657,12 @@ class EfinanceFetcher(BaseFetcher):
             circuit_breaker.record_failure(source_key, str(e))
             return None
 
-    def get_main_indices(self) -> Optional[List[Dict[str, Any]]]:
+    def get_main_indices(self, market: str = "US") -> Optional[List[Dict[str, Any]]]:
         """
         获取主要指数实时行情 (efinance)
         """
+        if (market or "US").upper() != "CN":
+            return None
         import efinance as ef
 
         indices_map = {
@@ -732,10 +734,12 @@ class EfinanceFetcher(BaseFetcher):
             logger.error(f"[efinance] 获取指数行情失败: {e}")
             return None
 
-    def get_market_stats(self) -> Optional[Dict[str, Any]]:
+    def get_market_stats(self, market: str = "US") -> Optional[Dict[str, Any]]:
         """
         获取市场涨跌统计 (efinance)
         """
+        if (market or "US").upper() != "CN":
+            return None
         import efinance as ef
 
         try:
@@ -780,10 +784,12 @@ class EfinanceFetcher(BaseFetcher):
             logger.error(f"[efinance] 获取市场统计失败: {e}")
             return None
 
-    def get_sector_rankings(self, n: int = 5) -> Optional[Tuple[List[Dict], List[Dict]]]:
+    def get_sector_rankings(self, n: int = 5, market: str = "US") -> Optional[Tuple[List[Dict], List[Dict]]]:
         """
         获取板块涨跌榜 (efinance)
         """
+        if (market or "US").upper() != "CN":
+            return None
         import efinance as ef
 
         try:

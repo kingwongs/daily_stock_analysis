@@ -103,3 +103,14 @@ Set Akshare as the default market source path for market review/analysis behavio
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | None | N/A | N/A |
+
+## PR Metadata Notes
+
+- Issue linkage: `Refs #TBD` (replace with real issue id at PR creation time).
+- PR type: `feat`
+- Release tag hint: `#minor`
+- Breaking change: none expected.
+- Validation commands:
+  - `./test.sh syntax`
+  - `PYTHONPYCACHEPREFIX=.pycache .venv/bin/python -m pytest -q tests/test_market_review_us_default.py tests/test_get_latest_data.py tests/test_report_language_english.py`
+- Rollback plan: revert the config flag wiring and provider-priority changes in `src/config.py`, `src/search_service.py`, `data_provider/base.py`, and `src/core/market_review.py`.

@@ -250,6 +250,7 @@ def run_full_analysis(
                 notifier=pipeline.notifier,
                 analyzer=pipeline.analyzer,
                 search_service=pipeline.search_service,
+                market=config.market_review_default_market,
                 send_notification=not args.no_notify
             )
             # 如果有结果，赋值给 market_report 用于后续飞书文档生成
@@ -502,7 +503,9 @@ def main() -> int:
                     bocha_keys=config.bocha_api_keys,
                     tavily_keys=config.tavily_api_keys,
                     brave_keys=config.brave_api_keys,
-                    serpapi_keys=config.serpapi_keys
+                    serpapi_keys=config.serpapi_keys,
+                    tavily_enabled=config.tavily_enabled,
+                    testing_disable_tavily=config.testing_disable_tavily,
                 )
             
             if config.gemini_api_key or config.openai_api_key:
@@ -517,6 +520,7 @@ def main() -> int:
                 notifier=notifier, 
                 analyzer=analyzer, 
                 search_service=search_service,
+                market=config.market_review_default_market,
                 send_notification=not args.no_notify
             )
             return 0

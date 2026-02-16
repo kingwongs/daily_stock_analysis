@@ -83,6 +83,8 @@ class StockAnalysisPipeline:
             tavily_keys=self.config.tavily_api_keys,
             brave_keys=self.config.brave_api_keys,
             serpapi_keys=self.config.serpapi_keys,
+            tavily_enabled=self.config.tavily_enabled,
+            testing_disable_tavily=self.config.testing_disable_tavily,
         )
         
         logger.info(f"调度器初始化完成，最大并发数: {self.max_workers}")
@@ -96,8 +98,13 @@ class StockAnalysisPipeline:
             logger.info("筹码分布分析已启用")
         else:
             logger.info("筹码分布分析已禁用")
+        logger.info(
+            f"Tavily effective status: configured={self.config.tavily_enabled}, "
+            f"testing_disable={self.config.testing_disable_tavily}"
+        )
         if self.search_service.is_available:
-            logger.info("搜索服务已启用 (Tavily/SerpAPI)")
+            providers = ", ".join(self.search_service.provider_names)
+            logger.info(f"搜索服务已启用 (providers: {providers})")
         else:
             logger.warning("搜索服务未启用（未配置 API Key）")
     
