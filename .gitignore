@@ -77,3 +77,9 @@ CLAUDE.md
 static/
 /apps/dsa-desktop/dist/
 /apps/dsa-desktop/node_modules/
+
+# ignore codex local runtime/session/auth files
+.codex/
+
+# local secret screenshots/config captures
+/sources/secret_config.png
