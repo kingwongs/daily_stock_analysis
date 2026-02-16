@@ -40,7 +40,7 @@ except ImportError:
 
 from src.config import get_config
 from src.analyzer import AnalysisResult
-from src.formatters import format_feishu_markdown, markdown_to_html_document
+from src.formatters import format_feishu_markdown, markdown_to_html_document, normalize_market_review_text
 from bot.models import BotMessage
 
 logger = logging.getLogger(__name__)
@@ -219,6 +219,11 @@ class NotificationService:
             channel_names = [ChannelDetector.get_channel_name(ch) for ch in self._available_channels]
             channel_names.extend(self._context_channels)
             logger.info(f"已配置 {len(channel_names)} 个通知渠道：{', '.join(channel_names)}")
+
+    @staticmethod
+    def normalize_market_review_message(content: str) -> str:
+        """Normalize market review message labels to English for outbound channels."""
+        return normalize_market_review_text(content)
     
     def _detect_all_channels(self) -> List[NotificationChannel]:
         """

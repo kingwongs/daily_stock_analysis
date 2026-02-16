@@ -3,18 +3,31 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+.pytest_cache/
 
 # 忽略虚拟环境
 venv/
 .venv/
 env/
 .env.local
+.env*
 
 # 忽略 IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# Docker build hygiene
+.git/
+Dockerfile*
+.dockerignore
+node_modules/
+dist/
+build/
+coverage/
+*.log*
+*.tmp
 
 # 忽略数据文件（可选，如果想持久化就注释掉）
 # data/

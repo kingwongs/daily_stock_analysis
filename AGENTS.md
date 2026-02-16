@@ -119,3 +119,10 @@
 python -m py_compile main.py src/*.py data_provider/*.py
 flake8 main.py src/ --max-line-length=120
 ```
+
+## Active Technologies
+- Python 3.10+ + FastAPI, Akshare, yfinance, Tavily client integration, pytes (001-akshare-default-source)
+- SQLite (`data/stock_analysis.db`) and local report/log files (001-akshare-default-source)
+
+## Recent Changes
+- 001-akshare-default-source: Added Python 3.10+ + FastAPI, Akshare, yfinance, Tavily client integration, pytes
